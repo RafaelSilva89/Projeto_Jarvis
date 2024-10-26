@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface de Mensagens</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffffff;
+        }
+
+        /* Message styles */
+        .message {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        /* Avatar styles */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            margin: 0 10px;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Message content styles */
+        .message-content {
+            background-color: #f0f0f0;
+            padding: 12px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.bot .message-content {
+            background-color: #e3f2fd;
+            border-top-left-radius: 5px;
+        }
+
+        .message.user .message-content {
+            background-color: #e8f5e9;
+            border-top-right-radius: 5px;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Recording button styles */
+        #micBtn.recording {
+            background-color: #ff4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .container {
+            width: 800px;  /* Aumentado de 300px */
+            height: 700px; /* Aumentado de 500px */
+            border: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .messages {
+            flex-grow: 1;
+            border: 2px solid #000;
+            margin-bottom: 15px;
+            background-color: #fff;
+            overflow-y: auto;
+            height: 500px; /* Altura específica para a área de mensagens */
+        }
+
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 80px; /* Aumentado de altura */
+            padding: 12px;
+            border: 2px solid #000;
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #666;
+            resize: none;
+        }
+
+        .text-input::placeholder {
+            color: #666;
+        }
+
+        .file-selection {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .file-input-container {
+            flex: 2;
+            position: relative;
+        }
+
+        .file-input {
+            width: 95%;
+            padding: 8px;
+            border: 1px solid #000;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .btn-send {
+            background-color: #4CAF50;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+        }
+
+        .btn-mic {
+            background-color: #2196F3;
+        }
+
+        .btn-extract {
+            background-color: #2196F3;
+        }
+
+        .recording {
+            background-color: #ff4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .message {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20px;
+        }
+
+        .bot-message {
+            background-color: #f5f5f5;
+            margin-right: 20px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="messages" id="messageArea"></div>
+        <div class="input-area">
+            <div class="file-selection">
+                <!-- Campo para selecionar o arquivo PDF -->
+                <div class="file-input-container">
+                    <input type="file" id="pdfInput" multiple accept=".pdf", class="file-input", placeholder="Escolher arquivos">
+                </div>                
+                <button class="btn btn-extract" id="extractBtn" onclick="extractPdfData()">Extrair dados do PDF</button>
+            </div>
+            <textarea class="text-input" id="messageInput" placeholder="Digite sua mensagem aqui..."></textarea>
+            <div class="buttons">
+                <button class="btn btn-send" id="sendBtn">Enviar</button>
+                <button class="btn btn-delete" id="deleteBtn">Deletar</button>
+                <button class="btn btn-mic" id="micBtn">
+                    <i class="fas fa-microphone"></i>
+                <button id="pdfInfoButton">Informações do PDF</button>
+                </button>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="hearResponseCheckbox">
+                    <label for="hearResponseCheckbox">Voz</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('pdfInput').addEventListener('change', function(e) {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.textContent = file.name;
+                fileList.appendChild(fileItem);
+            });
+        });
+
+        // Função para o botão informações sobre o pdf
+        document.getElementById('pdfInfoButton').addEventListener('click', function() {
+            window.open('/pdf_info', '_blank');});
+
+        function extractPdfData() {
+            const formData = new FormData();
+            const files = document.getElementById('pdfInput').files;
+            
+            for (let file of files) {
+                formData.append('file', file);
+            }
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert('PDFs processados com sucesso!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erro ao processar os PDFs');
+            });
+        }
+
+        // [O script JavaScript permanece o mesmo que o original]
+        let isRecording = false;
+        const hearResponseCheckbox = document.getElementById('hearResponseCheckbox');
+
+        // Carregar configurações
+        fetch('/settings.json')
+            .then(response => response.json())
+            .then(settings => {
+                hearResponseCheckbox.checked = settings.hear_response;
+            })
+            .catch(console.error);
+
+        // Salvar configurações quando alteradas
+        hearResponseCheckbox.addEventListener('change', saveSettings);
+
+        function saveSettings() {
+            const settings = {
+                hear_response: hearResponseCheckbox.checked,
+                selected_voice: 'alloy'
+            };
+            
+            fetch('/save_settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(settings)
+            });
+        }
+
+        async function playAudio(text) {
+            if (!hearResponseCheckbox.checked) return;
+            
+            try {
+                const response = await fetch('/text_to_speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        voice: 'alloy'
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
+                    await audio.play();
+                }
+            } catch (error) {
+                console.error('Error playing audio:', error);
+            }
+        }
+
+        // Function to create a message element with avatar
+        function createMessageElement(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            
+            const img = document.createElement('img');
+            img.src = isUser ? '/static/user-avatar.png' : '/static/bot-avatar.png';
+            img.alt = isUser ? 'User Avatar' : 'Bot Avatar';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            avatarDiv.appendChild(img);
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+            
+            return messageDiv;
+        }
+
+        // Modified sendMessage function
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageArea = document.getElementById('messageArea');
+            const message = messageInput.value.trim();
+            
+            if (message) {
+                // Add user message with avatar
+                messageArea.appendChild(createMessageElement(message, true));
+                
+                const response = await fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                // Add bot message with avatar
+                messageArea.appendChild(createMessageElement(data.content, false));
+                
+                if (hearResponseCheckbox.checked) {
+                    await playAudio(data.content);
+                }
+                
+                messageInput.value = '';
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        document.getElementById('deleteBtn').addEventListener('click', () => {
+            document.getElementById('messageArea').innerHTML = '';
+        });
+
+        document.getElementById('micBtn').addEventListener('click', async () => {
+            const micBtn = document.getElementById('micBtn');
+            const messageArea = document.getElementById('messageArea');
+            
+            if (!isRecording) {
+                isRecording = true;
+                micBtn.classList.add('recording');
+                await fetch('/start_recording', { method: 'POST' });
+            } else {
+                isRecording = false;
+                micBtn.classList.remove('recording');
+                const response = await fetch('/stop_recording', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.transcript) {
+                    // Add user's transcribed message with avatar
+                    messageArea.appendChild(createMessageElement(data.transcript, true));
+                    
+                    // Add bot's response with avatar
+                    messageArea.appendChild(createMessageElement(data.response.content, false));
+                    
+                    if (hearResponseCheckbox.checked) {
+                        await playAudio(data.response.content);
+                    }
+                    
+                    messageArea.scrollTop = messageArea.scrollHeight;
+                }
+            }
+        });        
+    </script>
+</body>
+</html>

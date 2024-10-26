@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFORMAÇÕES DO PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #1a5f7a;
+            text-align: center;
+        }
+        .result {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .result h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .info {
+            margin-bottom: 10px;
+        }
+        .label {
+            font-weight: bold;
+            color: #34495e;
+        }
+        .content {
+            background-color: #ecf0f1;
+            padding: 10px;
+            border-radius: 3px;
+            white-space: pre-wrap;
+        }
+        .separator {
+            border-top: 1px solid #bdc3c7;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>INFORMAÇÕES DO PDF</h1>
+    <div id="results"></div>
+
+    <script>
+        // Function to fetch and display results
+        function fetchAndDisplayResults() {
+                    fetch('/static/pdf_results.json')  // Este caminho deve estar correto agora
+                                .then(response => response.json())
+                                .then(results => {
+                                    const resultsContainer = document.getElementById('results');
+                                    resultsContainer.innerHTML = ''; // Clear previous results
+
+                                    results.forEach(result => {
+                                        const resultElement = document.createElement('div');
+                                        resultElement.className = 'result';
+                                        resultElement.innerHTML = `
+                                            <h2>Resultado ${result.number}</h2>
+                                            <div class="info">
+                                                <span class="label">Comprimento do conteúdo:</span> ${result.length} caracteres
+                                            </div>
+                                            <div class="info">
+                                                <span class="label">Score de Relevância:</span> ${result.score.toFixed(4)}
+                                            </div>
+                                            <div class="info">
+                                                <span class="label">Conteúdo:</span>
+                                                <div class="content">${result.content}</div>
+                                            </div>
+                                        `;
+                                        resultsContainer.appendChild(resultElement);
+
+                                        if (result !== results[results.length - 1]) {
+                                            const separator = document.createElement('div');
+                                            separator.className = 'separator';
+                                            resultsContainer.appendChild(separator);
+                                        }
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching results:', error);
+                                    document.getElementById('results').innerHTML = '<p>Erro ao carregar os resultados. Por favor, tente novamente mais tarde.</p>';
+            });
+        }
+
+        // Call the function when the page loads
+        window.onload = fetchAndDisplayResults;
+    </script>
+</body>
+</html>
